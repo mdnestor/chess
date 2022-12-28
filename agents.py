@@ -1,6 +1,8 @@
 import chess
+
+import math
 import random
-import numpy as np
+import numpy
 
 class Agent():
   def move(self, board_str: str) -> str:
@@ -61,14 +63,46 @@ class ReverseStarting(Agent):
   pass
 
 class CCCP(Agent):
-  # checkmate check capture push
-  pass
-
-class Alphabetical():
+  # checkmate > check > capture > push
   def move(self, board_str):
     board = chess.Board(board_str)
-    move = sorted(board.legal_moves, key=lambda x: str(x).lower())[0]
+    moves = list(board.legal_moves)
+    scores = [self.score(board_str, move.uci()) for move in moves]
+    best_moves = [m for (m, s) in zip(moves, scores) if s == max(scores)]
+    move = random.sample(best_moves, 1)[0]
     return move.uci()
+
+  def score(self, board_str, move_str):
+    board = chess.Board(board_str)
+    move = chess.Move.from_uci(move_str)
+    board.push(move)
+    if board.is_checkmate(): return 3
+    if board.is_check(): return 2
+    board.pop()
+    if board.is_capture(move): return 1
+    return 0
+    
+class Arithmetic(Agent):
+  def __init__(self, const = 0):
+    self.const = const % 1
+  def move(self, board_str):
+    board = chess.Board(board_str)
+    legal_moves = list(board.legal_moves)
+    idx = int(self.const * len(legal_moves))
+    move = sorted(legal_moves, key=lambda x: str(x).lower())[idx]
+    return move.uci()
+
+class Alphabetical(Arithmetic):
+  def __init__(self):
+    super().__init__(const=0)
+
+class Rational_pi(Arithmetic):
+  def __init__(self):
+    super().__init__(const=math.pi)
+
+class Rational_e(Arithmetic):
+  def __init__(self):
+    super().__init__(const=math.e)
 
 class FirstMove(Agent):
   pass
@@ -115,13 +149,11 @@ class MinOpptMoves(Agent):
       board.push(move)
       oppt_moves.append(len(list(board.legal_moves)))
       board.pop()
-    move = moves[np.argmin(oppt_moves)]
+    move = moves[numpy.argmin(oppt_moves)]
     return move.uci()
 
-class Upward():
-  def play(self, board_str):
+class Upward(Agent):
+  def move(self, board_str):
     board = chess.Board(board_str)
     move = sorted(board.legal_moves, key=lambda x: x.to_square)[0]
     return move.uci()
-        
-
