@@ -5,19 +5,19 @@ import random
 import numpy
 
 class Agent():
-  def move(self, board_str: str) -> str:
+  def __call__(self, board_str: str) -> str:
     # takes board as FEN string; returns move as UCI string
     pass
 
 class Random(Agent):
-  def move(self, board_str):
+  def __call__(self, board_str):
     board = chess.Board(board_str)
     move = random.sample(list(board.legal_moves), 1)[0]
     return move.uci()
 
 class SameColor(Agent):
   # likes to put white pieces on white squares and vice versa
-  def move(self, board_str):
+  def __call__(self, board_str):
     board = chess.Board(board_str)
     moves = list(board.legal_moves)
     same_color_moves = [move for move in moves if (move.to_square + move.to_square//8) % 2 == board.turn]
@@ -29,7 +29,7 @@ class SameColor(Agent):
 
 class OppositeColor(Agent):
   # likes to put white pieces on black squares and vice versa
-  def move(self, board):
+  def __call__(self, board):
     moves = list(board.legal_moves)
     opp_color_moves = [move for move in moves if (move.to_square + move.to_square//8) % 2 == 1 - board.turn]
     if opp_color_moves:
@@ -64,7 +64,7 @@ class ReverseStarting(Agent):
 
 class CCCP(Agent):
   # checkmate > check > capture > push
-  def move(self, board_str):
+  def __call__(self, board_str):
     board = chess.Board(board_str)
     moves = list(board.legal_moves)
     scores = [self.score(board_str, move.uci()) for move in moves]
@@ -85,7 +85,7 @@ class CCCP(Agent):
 class Arithmetic(Agent):
   def __init__(self, const = 0):
     self.const = const % 1
-  def move(self, board_str):
+  def __call__(self, board_str):
     board = chess.Board(board_str)
     legal_moves = list(board.legal_moves)
     idx = int(self.const * len(legal_moves))
@@ -141,7 +141,7 @@ class SuicideKing(Agent):
   pass
 
 class MinOpptMoves(Agent):
-  def move(self, board_str):
+  def __call__(self, board_str):
     board = chess.Board(board_str)
     oppt_moves = []
     moves = list(board.legal_moves)
@@ -153,7 +153,7 @@ class MinOpptMoves(Agent):
     return move.uci()
 
 class Upward(Agent):
-  def move(self, board_str):
+  def __call__(self, board_str):
     board = chess.Board(board_str)
     move = sorted(board.legal_moves, key=lambda x: x.to_square)[0]
     return move.uci()
