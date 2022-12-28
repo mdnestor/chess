@@ -1,41 +1,46 @@
 import chess
+import chess.pgn
+
 import random
+import time
 
-from agents import Random, Alphabetical, Upward
-from stockfish import Stockfish, NegativeStockfish
+from agents import (
+  Agent,
+  Random,
+  SameColor,
+  OppositeColor,
+  CCCP,
+  Alphabetical,
+  Rational_pi,
+  Rational_e,
+  MinOpptMoves,
+  Upward,
+  Stockfish,
+  NegativeStockfish,
+)
 
 
-def play_game(white, black, watch=False):
+def play_game(white: Agent, black: Agent, watch=False, delay=0):
   board = chess.Board()
-
-  if watch:
-    print(board, "\n")
-
+  node = chess.pgn.Game.without_tag_roster()
+  if watch: print(board, "\n")
   while not board.outcome():
     player = [black, white][board.turn]
     
-    move_str = player.move(board.fen())
-    move = chess.Move.from_uci(move_str)
+    move_uci = player(board.fen())
+    move = chess.Move.from_uci(move_uci)
 
     board.push(move)
+    node = node.add_variation(move)
 
-    if watch:
-      print(board, "\n")
-
-  if watch:
-    print(board.outcome())
-  return board
-
-
-def play_games(white, black, n_games=1, watch=False):
-  score = {True: 0, False: 0, None: 0}
-  for _ in range(n_games):
-    board = play_game(white, black, watch=watch)
-    outcome = board.outcome()
-    score[outcome.winner] += 1
-  return score
+    if watch: print(board, "\n")
+    if delay: time.sleep(delay)
+  if watch: print(board.outcome())
+  return str(node.game())
 
 
 if __name__ == "__main__":
-  score = play_games(white=Random(), black=Random(), n_games=3, watch=True)
-  print(score)
+  white = Random()
+  black = Random()
+  pgn = play_game(white, black)
+  print(pgn)

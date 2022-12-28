@@ -1,8 +1,12 @@
 import chess
+import chess.engine
 
 import math
 import random
+import re
+
 import numpy
+
 
 class Agent():
   def __call__(self, board_str: str) -> str:
@@ -157,3 +161,30 @@ class Upward(Agent):
     board = chess.Board(board_str)
     move = sorted(board.legal_moves, key=lambda x: x.to_square)[0]
     return move.uci()
+
+class Stockfish(Agent):
+  def __init__(self, path_to_stockfish, time_limit = 0.1):
+    self.engine = chess.engine.SimpleEngine.popen_uci(path_to_stockfish)
+    self.time_limit = time_limit
+        
+  def move(self, board_str):
+    board = chess.Board(board_str)
+    result = self.engine.play(board, chess.engine.Limit(time=self.time_limit))
+    return(result.move.uci())
+
+class NegativeStockfish(Agent):
+    def move(self, board_str):
+      board = chess.Board(board_str)
+      scores = []
+      for move in board.legal_moves:
+        board.push(move)
+        res = self.engine.analyse(board, chess.engine.Limit(time=self.time_limit))
+        scores.append(res.get("score"))
+        board.pop()
+            
+      scores = re.findall("\+?\-?\d+", str(scores))
+        
+      # get worst possible move (best move from black's pov)
+      index = numpy.argmax([int(s) for s in scores])
+      move = list(board.legal_moves)[index]
+      return(move.uci())
