@@ -12,7 +12,7 @@ python3 main.py
 
 ## Agents
 
-Agents are implemented as callable classes (inherited from `agents.Agent`) that take the board as a [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string and return a move as a [UCI format](https://en.wikipedia.org/wiki/Universal_Chess_Interface) string.
+Agents are implemented in `agents.py` as callable classes that take the board as a [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string and return a move in [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface) format.
 
 ### Implemented
 
