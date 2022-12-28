@@ -1,6 +1,7 @@
 import chess
 import chess.pgn
 
+import io
 import random
 import time
 
@@ -20,27 +21,28 @@ from agents import (
 )
 
 
-def play_game(white: Agent, black: Agent, watch=False, delay=0):
+def play_game(white: Agent, black: Agent):
   board = chess.Board()
-  node = chess.pgn.Game.without_tag_roster()
-  if watch: print(board, "\n")
-  while not board.outcome():
-    player = [black, white][board.turn]
-    
+  while not board.is_game_over():
+    player = white if board.turn else black
     move_uci = player(board.fen())
     move = chess.Move.from_uci(move_uci)
-
     board.push(move)
-    node = node.add_variation(move)
-
-    if watch: print(board, "\n")
-    if delay: time.sleep(delay)
-  if watch: print(board.outcome())
-  return str(node.game())
+  game = chess.pgn.Game.from_board(board)
+  game.headers["White"] = type(white).__name__
+  game.headers["Black"] = type(black).__name__
+  return str(game)
 
 
 if __name__ == "__main__":
   white = Random()
   black = Random()
+
   pgn = play_game(white, black)
-  print(pgn)
+
+  game = chess.pgn.read_game(io.StringIO(pgn))
+  board = game.board()
+  for move in game.mainline_moves():
+    board.push(move)
+    
+  print(board.outcome())
