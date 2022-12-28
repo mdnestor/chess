@@ -9,20 +9,20 @@ import numpy
 
 
 class Agent():
-  def __call__(self, board_str: str) -> str:
+  def __call__(self, board_fen: str) -> str:
     # takes board as FEN string; returns move as UCI string
     pass
 
 class Random(Agent):
-  def __call__(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     move = random.sample(list(board.legal_moves), 1)[0]
     return move.uci()
 
 class SameColor(Agent):
   # likes to put white pieces on white squares and vice versa
-  def __call__(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     moves = list(board.legal_moves)
     same_color_moves = [move for move in moves if (move.to_square + move.to_square//8) % 2 == board.turn]
     if same_color_moves:
@@ -68,17 +68,17 @@ class ReverseStarting(Agent):
 
 class CCCP(Agent):
   # checkmate > check > capture > push
-  def __call__(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     moves = list(board.legal_moves)
-    scores = [self.score(board_str, move.uci()) for move in moves]
+    scores = [self.score(board_fen, move.uci()) for move in moves]
     best_moves = [m for (m, s) in zip(moves, scores) if s == max(scores)]
     move = random.sample(best_moves, 1)[0]
     return move.uci()
 
-  def score(self, board_str, move_str):
-    board = chess.Board(board_str)
-    move = chess.Move.from_uci(move_str)
+  def score(self, board_fen, move_uci):
+    board = chess.Board(board_fen)
+    move = chess.Move.from_uci(move_uci)
     board.push(move)
     if board.is_checkmate(): return 3
     if board.is_check(): return 2
@@ -89,8 +89,8 @@ class CCCP(Agent):
 class Arithmetic(Agent):
   def __init__(self, const = 0):
     self.const = const % 1
-  def __call__(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     legal_moves = list(board.legal_moves)
     idx = int(self.const * len(legal_moves))
     move = sorted(legal_moves, key=lambda x: str(x).lower())[idx]
@@ -145,8 +145,8 @@ class SuicideKing(Agent):
   pass
 
 class MinOpptMoves(Agent):
-  def __call__(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     oppt_moves = []
     moves = list(board.legal_moves)
     for move in moves:
@@ -157,8 +157,8 @@ class MinOpptMoves(Agent):
     return move.uci()
 
 class Upward(Agent):
-  def __call__(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     move = sorted(board.legal_moves, key=lambda x: x.to_square)[0]
     return move.uci()
 
@@ -167,14 +167,14 @@ class Stockfish(Agent):
     self.engine = chess.engine.SimpleEngine.popen_uci(path_to_stockfish)
     self.time_limit = time_limit
         
-  def move(self, board_str):
-    board = chess.Board(board_str)
+  def __call__(self, board_fen):
+    board = chess.Board(board_fen)
     result = self.engine.play(board, chess.engine.Limit(time=self.time_limit))
     return(result.move.uci())
 
 class NegativeStockfish(Agent):
-    def move(self, board_str):
-      board = chess.Board(board_str)
+    def __call__(self, board_fen):
+      board = chess.Board(board_fen)
       scores = []
       for move in board.legal_moves:
         board.push(move)
