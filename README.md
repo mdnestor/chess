@@ -1,10 +1,8 @@
 # Elo World
 
-This repository contains a few algorithms for playing chess. Most of them are terrible at playing chess, but have other interesting properties. Based on [this video](https://www.youtube.com/watch?v=DpXy041BIlA).
+This repository contains a few algorithms for playing chess, written in Python 3. Most of them are terrible at winning, but have other interesting properties. Based on the video ["30 Weird Chess Algorithms: Elo World"](https://www.youtube.com/watch?v=DpXy041BIlA) by Tom 7.
 
-## Usage
-
-Requires Python. Only works on Windows. 
+## Installation
 
 ```
 git clone https://github.com/mdnestor/eloworld.git
@@ -14,7 +12,7 @@ python3 main.py
 
 ## Agents
 
-Agents are implemented as classes with a method `move` that takes the board as a [FEN string](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) returns the move as a [UIC string](https://en.wikipedia.org/wiki/Universal_Chess_Interface).
+Agents are implemented as callable classes (inherited from `agents.Agent`) that take the board as a [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string and return a move as a [UCI format](https://en.wikipedia.org/wiki/Universal_Chess_Interface) string.
 
 ### Implemented
 
