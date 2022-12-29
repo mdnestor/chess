@@ -16,7 +16,7 @@ class Agent():
 class Random(Agent):
   def __call__(self, board_fen):
     board = chess.Board(board_fen)
-    move = random.sample(list(board.legal_moves), 1)[0]
+    move = random.choice(list(board.legal_moves))
     return move.uci()
 
 class SameColor(Agent):
@@ -26,9 +26,9 @@ class SameColor(Agent):
     moves = list(board.legal_moves)
     same_color_moves = [move for move in moves if (move.to_square + move.to_square//8) % 2 == board.turn]
     if same_color_moves:
-      move = random.sample(same_color_moves, 1)[0]
+      move = random.choice(same_color_moves)
     else:
-      move = random.sample(moves, 1)[0]
+      move = random.choice(moves)
     return move.uci()
 
 class OppositeColor(Agent):
@@ -37,9 +37,9 @@ class OppositeColor(Agent):
     moves = list(board.legal_moves)
     opp_color_moves = [move for move in moves if (move.to_square + move.to_square//8) % 2 == 1 - board.turn]
     if opp_color_moves:
-      move = random.sample(opp_color_moves, 1)[0]
+      move = random.choice(opp_color_moves)
     else:
-      move = random.sample(moves, 1)[0]
+      move = random.choice(moves)
     return move.uci()
 
 class Huddle(Agent):
@@ -73,7 +73,7 @@ class CCCP(Agent):
     moves = list(board.legal_moves)
     scores = [self.score(board_fen, move.uci()) for move in moves]
     best_moves = [m for (m, s) in zip(moves, scores) if s == max(scores)]
-    move = random.sample(best_moves, 1)[0]
+    move = random.choice(best_moves)
     return move.uci()
 
   def score(self, board_fen, move_uci):
